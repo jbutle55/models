@@ -491,7 +491,7 @@ def main(_):
       FLAGS.train_image_dir,
       train_output_path,
       FLAGS.include_masks,
-      num_shards=100,
+      num_shards=1,
       keypoint_annotations_file=FLAGS.train_keypoint_annotations_file,
       densepose_annotations_file=FLAGS.train_densepose_annotations_file,
       remove_non_person_annotations=FLAGS.remove_non_person_annotations,
@@ -501,7 +501,7 @@ def main(_):
       FLAGS.val_image_dir,
       val_output_path,
       FLAGS.include_masks,
-      num_shards=50,
+      num_shards=1,
       keypoint_annotations_file=FLAGS.val_keypoint_annotations_file,
       densepose_annotations_file=FLAGS.val_densepose_annotations_file,
       remove_non_person_annotations=FLAGS.remove_non_person_annotations,
@@ -511,7 +511,7 @@ def main(_):
       FLAGS.test_image_dir,
       testdev_output_path,
       FLAGS.include_masks,
-      num_shards=50)
+      num_shards=1)
 
 
 if __name__ == '__main__':
