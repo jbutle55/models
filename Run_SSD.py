@@ -74,7 +74,7 @@ def main(args):
     # CONFIGS
     ##################################
     video_path = args.video
-    num_classes = 1
+    num_classes = 80
     pipeline_config = 'research/object_detection/configs/tf2/ssd_resnet101_v1_fpn_1024x1024_coco17_tpu-8.config'
     checkpoint_path = 'research/object_detection/test_data/checkpoint/ckpt-0'
 
