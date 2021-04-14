@@ -206,6 +206,8 @@ def main(args):
                     np.expand_dims(image, 0), dtype=tf.float32)
                 detections, predictions_dict, shapes = detect_fn(input_tensor)
 
+                image = np.asarray(image)
+
                 # Draw Bboxes
                 for count, box in enumerate(detections):
                     # Shape (y min, x min, y max, x max)
