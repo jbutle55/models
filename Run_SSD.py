@@ -210,6 +210,7 @@ def main(args):
 
                 # Draw Bboxes
                 for count, box in enumerate(detections):
+                    print(box)
                     # Shape (y min, x min, y max, x max)
                     splash = cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
                     # splash = cv2.addText(image, r['class_ids'][count], (box[3], box[2]), 2)
