@@ -205,9 +205,8 @@ def main(args):
                 input_tensor = tf.convert_to_tensor(
                     np.expand_dims(image, 0), dtype=tf.float32)
                 detections, predictions_dict, shapes = detect_fn(input_tensor)
-                print(detections)
 
-                print(detections['detection_boxes'])
+                print(detections['detection_boxes'].shape)
 
 
                 image = np.asarray(image).astype(np.uint8)
