@@ -209,7 +209,7 @@ def main(args):
 
                 # Draw Bboxes
                 for index, box in enumerate(detections['detection_boxes'][0]):
-                    print(f'{box[1]} {box[0]} {box[3]} {box[2]}')
+                    # print(f'{box[1]} {box[0]} {box[3]} {box[2]}')
 
                     # Shape (y min, x min, y max, x max)
                     image = cv2.rectangle(image, (box[1] * width, box[0] * height),
