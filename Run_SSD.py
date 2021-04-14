@@ -215,12 +215,14 @@ def main(args):
                     detections['detection_scores'][0].numpy(),
                     category_index,
                     use_normalized_coordinates=True,
-                    max_boxes_to_draw=200,
-                    min_score_thresh=.30,
+                    max_boxes_to_draw=None,
+                    min_score_thresh=.01,
                     agnostic_mode=False,
                     keypoints=None,
                     keypoint_scores=None,
                     keypoint_edges=None)
+
+                print(image.shape)
 
 
                 '''
