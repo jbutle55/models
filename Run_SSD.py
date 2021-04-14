@@ -216,7 +216,7 @@ def main(args):
                     # splash = cv2.addText(image, r['class_ids'][count], (box[3], box[2]), 2)
 
                 # RGB -> BGR to save image to video
-                splash = splash[..., ::-1]
+                splash = image[..., ::-1]
                 # Add image to video writer
                 vwriter.write(splash)
                 count += 1
