@@ -201,7 +201,7 @@ def main(args):
                 # OpenCV returns images as BGR, convert to RGB
                 image = image[..., ::-1]
                 # Detect objects
-                detections, predictions_dict, shapes = detect_fn(image)
+                detections, predictions_dict, shapes = detect_fn([image])
 
                 # Draw Bboxes
                 for count, box in enumerate(detections):
