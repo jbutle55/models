@@ -206,11 +206,17 @@ def main(args):
                     np.expand_dims(image, 0), dtype=tf.float32)
                 detections, predictions_dict, shapes = detect_fn(input_tensor)
 
+                detections['detection_boxes'][0, :, 0] = detections['detection_boxes'][0, :, 0] * height
+                detections['detection_boxes'][0, :, 2] = detections['detection_boxes'][0, :, 2] * height
+                detections['detection_boxes'][0, :, 1] = detections['detection_boxes'][0, :, 1] * width
+                detections['detection_boxes'][0, :, 3] = detections['detection_boxes'][0, :, 3] * width
+
                 image = np.asarray(image).astype(np.uint8)
 
                 # Draw Bboxes
                 for index, box in enumerate(detections['detection_boxes'][0]):
-                    print(box)
+                    print(f'{box[1]} {box[0]} {box[3]} {box[2]}')
+
                     # Shape (y min, x min, y max, x max)
                     image = cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
                     # splash = cv2.addText(image, r['class_ids'][count], (box[3], box[2]), 2)
