@@ -75,8 +75,8 @@ def main(args):
     ##################################
     video_path = args.video
     num_classes = 1
-    pipeline_config = 'models/research/object_detection/configs/tf2/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    checkpoint_path = 'models/research/object_detection/test_data/checkpoint/ckpt-0'
+    pipeline_config = 'research/object_detection/configs/tf2/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
+    checkpoint_path = 'research/object_detection/test_data/checkpoint/ckpt-0'
 
     # MODEL CREATION
     ##################################
