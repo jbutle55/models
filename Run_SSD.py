@@ -7,7 +7,7 @@ import tensorflow as tf
 import argparse
 import random
 import cv2
-import datetime
+import numpy as np
 
 
 # Set up forward + backward pass for a single train step.
@@ -200,8 +200,11 @@ def main(args):
             if success:
                 # OpenCV returns images as BGR, convert to RGB
                 image = image[..., ::-1]
+
                 # Detect objects
-                detections, predictions_dict, shapes = detect_fn([image])
+                input_tensor = tf.convert_to_tensor(
+                    np.expand_dims(image, 0), dtype=tf.float32)
+                detections, predictions_dict, shapes = detect_fn(input_tensor)
 
                 # Draw Bboxes
                 for count, box in enumerate(detections):
