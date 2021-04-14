@@ -207,7 +207,7 @@ def main(args):
                 detections, predictions_dict, shapes = detect_fn(input_tensor)
                 image = np.asarray(image).astype(np.uint8)
 
-                print(detections['detection_scores'][0])
+                # print(detections['detection_scores'][0])
 
                 label_id_offset = 1
                 image = visualization_utils.visualize_boxes_and_labels_on_image_array(
