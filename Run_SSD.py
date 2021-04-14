@@ -73,7 +73,7 @@ def get_model_detection_function(model):
 def main(args):
     # CONFIGS
     ##################################
-    video_path = ''
+    video_path = args.video
     num_classes = 1
     pipeline_config = 'models/research/object_detection/configs/tf2/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
     checkpoint_path = 'models/research/object_detection/test_data/checkpoint/ckpt-0'
@@ -223,5 +223,6 @@ if __name__ == '__main__':
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--detect', action='store_true')
     parser.add_argument('--output')
+    parser.add_argument('--video')
     arguments = parser.parse_args()
     main(arguments)
