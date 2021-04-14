@@ -1,5 +1,5 @@
 from research import object_detection
-from research.object_detection.utils import config_util, label_map_util
+from research.object_detection.utils import config_util, label_map_util, visualization_utils
 from research.object_detection.builders import model_builder
 
 import os
@@ -207,6 +207,23 @@ def main(args):
                 detections, predictions_dict, shapes = detect_fn(input_tensor)
                 image = np.asarray(image).astype(np.uint8)
 
+                label_id_offset = 1
+                image = visualization_utils.visualize_boxes_and_labels_on_image_array(
+                    image,
+                    detections['detection_boxes'][0].numpy(),
+                    (detections['detection_classes'][0].numpy() + label_id_offset).astype(int),
+                    detections['detection_scores'][0].numpy(),
+                    category_index,
+                    use_normalized_coordinates=True,
+                    max_boxes_to_draw=200,
+                    min_score_thresh=.30,
+                    agnostic_mode=False,
+                    keypoints=None,
+                    keypoint_scores=None,
+                    keypoint_edges=None)
+
+
+                '''
                 # Draw Bboxes
                 for index, box in enumerate(detections['detection_boxes'][0]):
                     # print(f'{box[1]} {box[0]} {box[3]} {box[2]}')
@@ -215,6 +232,7 @@ def main(args):
                     image = cv2.rectangle(image, (box[1] * width, box[0] * height),
                                           (box[3] * width, box[2] * height), (255, 0, 0), 2)
                     # splash = cv2.addText(image, r['class_ids'][count], (box[3], box[2]), 2)
+                '''
 
                 # RGB -> BGR to save image to video
                 splash = image[..., ::-1]
