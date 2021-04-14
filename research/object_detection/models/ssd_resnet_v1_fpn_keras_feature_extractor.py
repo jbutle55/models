@@ -201,8 +201,6 @@ class SSDResNetV1FpnKerasFeatureExtractor(
       preprocessed_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
     """
-    print(f'INPUTS SHAPE: {resized_inputs.shape}')
-
     if resized_inputs.shape.as_list()[3] == 3:
       channel_means = [123.68, 116.779, 103.939]
       return resized_inputs - [[channel_means]]
