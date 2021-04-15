@@ -76,7 +76,9 @@ def main(args):
     video_path = args.video
     num_classes = 80
     pipeline_config = 'research/object_detection/configs/tf2/ssd_resnet101_v1_fpn_1024x1024_coco17_tpu-8.config'
+    pipeline_config = '/home/justin/Models/models/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03/pipeline.config'
     checkpoint_path = 'research/object_detection/test_data/checkpoint/ckpt-0'
+    checkpoint_path = '/home/justin/Models/models/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03/model'
 
     # MODEL CREATION
     ##################################
@@ -92,6 +94,11 @@ def main(args):
     model_config.ssd.freeze_batchnorm = True
     detection_model = model_builder.build(
         model_config=model_config, is_training=True)
+
+    # Restore checkpoint
+    ckpt = tf.compat.v2.train.Checkpoint(
+        model=detection_model)
+    ckpt.restore(checkpoint_path).expect_partial()
 
     # LABEL MAP
     label_map_path = configs['eval_input_config'].label_map_path
@@ -223,8 +230,6 @@ def main(args):
                     keypoints=None,
                     keypoint_scores=None,
                     keypoint_edges=None)
-
-                print(image.shape)
 
 
                 '''
