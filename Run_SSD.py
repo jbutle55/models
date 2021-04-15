@@ -225,7 +225,7 @@ def main(args):
                     category_index,
                     use_normalized_coordinates=True,
                     max_boxes_to_draw=None,
-                    min_score_thresh=.00001,
+                    min_score_thresh=0.5,
                     agnostic_mode=False,
                     keypoints=None,
                     keypoint_scores=None,
