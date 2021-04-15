@@ -226,7 +226,7 @@ def main(args):
                     use_normalized_coordinates=True,
                     max_boxes_to_draw=None,
                     min_score_thresh=0.0,
-                    agnostic_mode=False,
+                    agnostic_mode=True,
                     keypoints=None,
                     keypoint_scores=None,
                     keypoint_edges=None)
