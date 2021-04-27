@@ -322,6 +322,13 @@ def create_tf_example(image,
       'image/object/area':
           dataset_util.float_list_feature(area),
   }
+
+  print(f'xmin: {xmin}')
+  print(f'xmax: {xmax}')
+
+  print(f'ymin: {ymin}')
+  print(f'ymax: {ymax}')
+
   if include_masks:
     feature_dict['image/object/mask'] = (
         dataset_util.bytes_list_feature(encoded_mask_png))
