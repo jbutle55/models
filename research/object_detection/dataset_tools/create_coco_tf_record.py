@@ -216,6 +216,7 @@ def create_tf_example(image,
     if remove_non_person_annotations and category_name != b'person':
       num_annotations_skipped += 1
       continue
+
     xmin.append(float(x) / image_width)
     xmax.append(float(x + width) / image_width)
     ymin.append(float(y) / image_height)
@@ -322,12 +323,6 @@ def create_tf_example(image,
       'image/object/area':
           dataset_util.float_list_feature(area),
   }
-
-  print(f'xmin: {xmin}')
-  print(f'xmax: {xmax}')
-
-  print(f'ymin: {ymin}')
-  print(f'ymax: {ymax}')
 
   if include_masks:
     feature_dict['image/object/mask'] = (
