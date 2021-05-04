@@ -210,7 +210,7 @@ def create_tf_example(image,
             num_annotations_skipped += 1
             continue
         if x + width > image_width or y + height > image_height:
-            print(f'x add {x + width}, width {width}. y add {y + height}, height {height}')
+            print(f'x add {x + width}, width {image_width}. y add {y + height}, height {image_height}')
             num_annotations_skipped += 1
             continue
         category_id = int(object_annotations['category_id'])
