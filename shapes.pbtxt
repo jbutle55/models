@@ -1,5 +1,24 @@
-circle
-rectangle
-ellipse
-triangle
-square
+item {
+    id: 1
+    name: 'circle'
+}
+
+item {
+    id: 2
+    name: 'rectangle'
+}
+
+item {
+    id: 3
+    name: 'ellipse'
+}
+
+item {
+    id: 4
+    name: 'triangle'
+}
+
+item {
+    id: 5
+    name: 'square'
+}
