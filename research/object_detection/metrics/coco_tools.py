@@ -206,8 +206,6 @@ class COCOEvalWrapper(cocoeval.COCOeval):
       oks_sigmas: Float numpy array holding the OKS variances for keypoints.
     """
 
-    print(os.path.abspath(cocoeval.__file__))
-
     cocoeval.COCOeval.__init__(self, groundtruth, detections, iouType=iou_type)
     if oks_sigmas is not None:
       self.params.kpt_oks_sigmas = oks_sigmas
@@ -289,6 +287,9 @@ class COCOEvalWrapper(cocoeval.COCOeval):
     self.evaluate()
     self.accumulate()
     self.summarize()
+
+    print('DEBUGGING')
+    print(os.path.abspath(cocoeval.__file__))
 
     if include_metrics_per_category is True:
         self.summarize_per_category()
