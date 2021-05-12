@@ -47,6 +47,7 @@ from collections import OrderedDict
 import copy
 import time
 import numpy as np
+import os
 
 from pycocotools import coco
 from pycocotools import cocoeval
@@ -204,6 +205,9 @@ class COCOEvalWrapper(cocoeval.COCOeval):
         `keypoints`.
       oks_sigmas: Float numpy array holding the OKS variances for keypoints.
     """
+
+    print(os.path.abspath(cocoeval.__file__))
+
     cocoeval.COCOeval.__init__(self, groundtruth, detections, iouType=iou_type)
     if oks_sigmas is not None:
       self.params.kpt_oks_sigmas = oks_sigmas
