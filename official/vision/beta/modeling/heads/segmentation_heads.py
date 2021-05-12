@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """Contains definitions of segmentation heads."""
-
+from typing import List, Union, Optional, Mapping
 import tensorflow as tf
 
 from official.modeling import tf_utils
@@ -25,22 +25,24 @@ from official.vision.beta.ops import spatial_transform_ops
 class SegmentationHead(tf.keras.layers.Layer):
   """Creates a segmentation head."""
 
-  def __init__(self,
-               num_classes,
-               level,
-               num_convs=2,
-               num_filters=256,
-               upsample_factor=1,
-               feature_fusion=None,
-               low_level=2,
-               low_level_num_filters=48,
-               activation='relu',
-               use_sync_bn=False,
-               norm_momentum=0.99,
-               norm_epsilon=0.001,
-               kernel_regularizer=None,
-               bias_regularizer=None,
-               **kwargs):
+  def __init__(
+      self,
+      num_classes: int,
+      level: Union[int, str],
+      num_convs: int = 2,
+      num_filters: int = 256,
+      prediction_kernel_size: int = 1,
+      upsample_factor: int = 1,
+      feature_fusion: Optional[str] = None,
+      low_level: int = 2,
+      low_level_num_filters: int = 48,
+      activation: str = 'relu',
+      use_sync_bn: bool = False,
+      norm_momentum: float = 0.99,
+      norm_epsilon: float = 0.001,
+      kernel_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      bias_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      **kwargs):
     """Initializes a segmentation head.
 
     Args:
@@ -51,6 +53,8 @@ class SegmentationHead(tf.keras.layers.Layer):
         prediction layer.
       num_filters: An `int` number to specify the number of filters used.
         Default is 256.
+      prediction_kernel_size: An `int` number to specify the kernel size of the
+      prediction layer.
       upsample_factor: An `int` number to specify the upsampling factor to
         generate finer mask. Default 1 means no upsampling is applied.
       feature_fusion: One of `deeplabv3plus`, `pyramid_fusion`, or None. If
@@ -80,6 +84,7 @@ class SegmentationHead(tf.keras.layers.Layer):
         'level': level,
         'num_convs': num_convs,
         'num_filters': num_filters,
+        'prediction_kernel_size': prediction_kernel_size,
         'upsample_factor': upsample_factor,
         'feature_fusion': feature_fusion,
         'low_level': low_level,
@@ -97,7 +102,7 @@ class SegmentationHead(tf.keras.layers.Layer):
       self._bn_axis = 1
     self._activation = tf_utils.get_activation(activation)
 
-  def build(self, input_shape):
+  def build(self, input_shape: Union[tf.TensorShape, List[tf.TensorShape]]):
     """Creates the variables of the segmentation head."""
     conv_op = tf.keras.layers.Conv2D
     conv_kwargs = {
@@ -146,7 +151,7 @@ class SegmentationHead(tf.keras.layers.Layer):
     self._classifier = conv_op(
         name='segmentation_output',
         filters=self._config_dict['num_classes'],
-        kernel_size=1,
+        kernel_size=self._config_dict['prediction_kernel_size'],
         padding='same',
         bias_initializer=tf.zeros_initializer(),
         kernel_initializer=tf.keras.initializers.RandomNormal(stddev=0.01),
@@ -155,7 +160,8 @@ class SegmentationHead(tf.keras.layers.Layer):
 
     super(SegmentationHead, self).build(input_shape)
 
-  def call(self, backbone_output, decoder_output):
+  def call(self, backbone_output: Mapping[str, tf.Tensor],
+           decoder_output: Mapping[str, tf.Tensor]):
     """Forward pass of the segmentation head.
 
     Args:
@@ -193,8 +199,10 @@ class SegmentationHead(tf.keras.layers.Layer):
       x = conv(x)
       x = norm(x)
       x = self._activation(x)
-    x = spatial_transform_ops.nearest_upsampling(
-        x, scale=self._config_dict['upsample_factor'])
+    if self._config_dict['upsample_factor'] > 1:
+      x = spatial_transform_ops.nearest_upsampling(
+          x, scale=self._config_dict['upsample_factor'])
+
     return self._classifier(x)
 
   def get_config(self):

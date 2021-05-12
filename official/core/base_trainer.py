@@ -370,7 +370,13 @@ class Trainer(_AsyncTrainer):
       logs[metric.name] = metric.result()
       metric.reset_states()
     if callable(self.optimizer.learning_rate):
-      logs["learning_rate"] = self.optimizer.learning_rate(self.global_step)
+      # Maybe a self-implemented optimizer does not have `optimizer.iterations`.
+      # So just to be safe here.
+      if hasattr(self.optimizer, "iterations"):
+        logs["learning_rate"] = self.optimizer.learning_rate(
+            self.optimizer.iterations)
+      else:
+        logs["learning_rate"] = self.optimizer.learning_rate(self.global_step)
     else:
       logs["learning_rate"] = self.optimizer.learning_rate
     return logs
@@ -379,7 +385,11 @@ class Trainer(_AsyncTrainer):
     """See base class."""
 
     def step_fn(inputs):
-      logs = self.task.train_step(
+      if self.config.runtime.enable_xla and (self.config.runtime.num_gpus > 0):
+        task_train_step = tf.function(self.task.train_step, jit_compile=True)
+      else:
+        task_train_step = self.task.train_step
+      logs = task_train_step(
           inputs,
           model=self.model,
           optimizer=self.optimizer,

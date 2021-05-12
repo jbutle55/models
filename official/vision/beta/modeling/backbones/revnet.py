@@ -18,6 +18,7 @@
 from typing import Any, Callable, Dict, Optional
 # Import libraries
 import tensorflow as tf
+from official.modeling import hyperparams
 from official.modeling import tf_utils
 from official.vision.beta.modeling.backbones import factory
 from official.vision.beta.modeling.layers import nn_blocks
@@ -59,17 +60,18 @@ class RevNet(tf.keras.Model):
     (https://arxiv.org/pdf/1707.04585.pdf)
   """
 
-  def __init__(self,
-               model_id: int,
-               input_specs: tf.keras.layers.InputSpec
-               = tf.keras.layers.InputSpec(shape=[None, None, None, 3]),
-               activation: str = 'relu',
-               use_sync_bn: bool = False,
-               norm_momentum: float = 0.99,
-               norm_epsilon: float = 0.001,
-               kernel_initializer: str = 'VarianceScaling',
-               kernel_regularizer: tf.keras.regularizers.Regularizer = None,
-               **kwargs):
+  def __init__(
+      self,
+      model_id: int,
+      input_specs: tf.keras.layers.InputSpec = tf.keras.layers.InputSpec(
+          shape=[None, None, None, 3]),
+      activation: str = 'relu',
+      use_sync_bn: bool = False,
+      norm_momentum: float = 0.99,
+      norm_epsilon: float = 0.001,
+      kernel_initializer: str = 'VarianceScaling',
+      kernel_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      **kwargs):
     """Initializes a RevNet model.
 
     Args:
@@ -212,12 +214,12 @@ class RevNet(tf.keras.Model):
 @factory.register_backbone_builder('revnet')
 def build_revnet(
     input_specs: tf.keras.layers.InputSpec,
-    model_config,
+    backbone_config: hyperparams.Config,
+    norm_activation_config: hyperparams.Config,
     l2_regularizer: tf.keras.regularizers.Regularizer = None) -> tf.keras.Model:
   """Builds RevNet backbone from a config."""
-  backbone_type = model_config.backbone.type
-  backbone_cfg = model_config.backbone.get()
-  norm_activation_config = model_config.norm_activation
+  backbone_type = backbone_config.type
+  backbone_cfg = backbone_config.get()
   assert backbone_type == 'revnet', (f'Inconsistent backbone type '
                                      f'{backbone_type}')
 

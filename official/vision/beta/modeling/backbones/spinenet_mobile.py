@@ -29,10 +29,14 @@
 # ==============================================================================
 """Contains definitions of Mobile SpineNet Networks."""
 import math
+from typing import Any, List, Optional, Tuple
 
 # Import libraries
+
 from absl import logging
 import tensorflow as tf
+
+from official.modeling import hyperparams
 from official.modeling import tf_utils
 from official.vision.beta.modeling.backbones import factory
 from official.vision.beta.modeling.layers import nn_blocks
@@ -96,14 +100,16 @@ SCALING_MAP = {
 class BlockSpec(object):
   """A container class that specifies the block configuration for SpineNet."""
 
-  def __init__(self, level, block_fn, input_offsets, is_output):
+  def __init__(self, level: int, block_fn: str, input_offsets: Tuple[int, int],
+               is_output: bool):
     self.level = level
     self.block_fn = block_fn
     self.input_offsets = input_offsets
     self.is_output = is_output
 
 
-def build_block_specs(block_specs=None):
+def build_block_specs(
+    block_specs: Optional[List[Tuple[Any, ...]]] = None) -> List[BlockSpec]:
   """Builds the list of BlockSpec objects for SpineNet."""
   if not block_specs:
     block_specs = SPINENET_BLOCK_SPECS
@@ -126,25 +132,27 @@ class SpineNetMobile(tf.keras.Model):
     (https://arxiv.org/abs/2010.11426).
   """
 
-  def __init__(self,
-               input_specs=tf.keras.layers.InputSpec(shape=[None, 512, 512, 3]),
-               min_level=3,
-               max_level=7,
-               block_specs=build_block_specs(),
-               endpoints_num_filters=48,
-               se_ratio=0.2,
-               block_repeats=1,
-               filter_size_scale=1.0,
-               expand_ratio=6,
-               init_stochastic_depth_rate=0.0,
-               kernel_initializer='VarianceScaling',
-               kernel_regularizer=None,
-               bias_regularizer=None,
-               activation='relu',
-               use_sync_bn=False,
-               norm_momentum=0.99,
-               norm_epsilon=0.001,
-               **kwargs):
+  def __init__(
+      self,
+      input_specs: tf.keras.layers.InputSpec = tf.keras.layers.InputSpec(
+          shape=[None, 512, 512, 3]),
+      min_level: int = 3,
+      max_level: int = 7,
+      block_specs: List[BlockSpec] = build_block_specs(),
+      endpoints_num_filters: int = 256,
+      se_ratio: float = 0.2,
+      block_repeats: int = 1,
+      filter_size_scale: float = 1.0,
+      expand_ratio: int = 6,
+      init_stochastic_depth_rate=0.0,
+      kernel_initializer: str = 'VarianceScaling',
+      kernel_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      bias_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      activation: str = 'relu',
+      use_sync_bn: bool = False,
+      norm_momentum: float = 0.99,
+      norm_epsilon: float = 0.001,
+      **kwargs):
     """Initializes a Mobile SpineNet model.
 
     Args:
@@ -222,15 +230,15 @@ class SpineNetMobile(tf.keras.Model):
     super().__init__(inputs=inputs, outputs=endpoints)
 
   def _block_group(self,
-                   inputs,
-                   in_filters,
-                   out_filters,
-                   strides,
-                   expand_ratio=6,
-                   block_repeats=1,
-                   se_ratio=0.2,
-                   stochastic_depth_drop_rate=None,
-                   name='block_group'):
+                   inputs: tf.Tensor,
+                   in_filters: int,
+                   out_filters: int,
+                   strides: int,
+                   expand_ratio: int = 6,
+                   block_repeats: int = 1,
+                   se_ratio: float = 0.2,
+                   stochastic_depth_drop_rate: Optional[float] = None,
+                   name: str = 'block_group'):
     """Creates one group of blocks for the SpineNet model."""
     x = nn_blocks.InvertedBottleneckBlock(
         in_filters=in_filters,
@@ -313,6 +321,9 @@ class SpineNetMobile(tf.keras.Model):
 
     endpoints = {}
     for i, block_spec in enumerate(self._block_specs):
+      # Update block level if it is larger than max_level to avoid building
+      # blocks smaller than requested.
+      block_spec.level = min(block_spec.level, self._max_level)
       # Find out specs for the target block.
       target_width = int(math.ceil(input_width / 2**block_spec.level))
       target_num_filters = int(FILTER_SIZE_MAP[block_spec.level] *
@@ -385,8 +396,9 @@ class SpineNetMobile(tf.keras.Model):
               block_spec.level))
         if (block_spec.level < self._min_level or
             block_spec.level > self._max_level):
-          raise ValueError('Output level is out of range [{}, {}]'.format(
-              self._min_level, self._max_level))
+          logging.warning(
+              'SpineNet output level out of range [min_level, max_levle] = [%s, %s] will not be used for further processing.',
+              self._min_level, self._max_level)
         endpoints[str(block_spec.level)] = x
 
     return endpoints
@@ -490,12 +502,12 @@ class SpineNetMobile(tf.keras.Model):
 @factory.register_backbone_builder('spinenet_mobile')
 def build_spinenet_mobile(
     input_specs: tf.keras.layers.InputSpec,
-    model_config,
+    backbone_config: hyperparams.Config,
+    norm_activation_config: hyperparams.Config,
     l2_regularizer: tf.keras.regularizers.Regularizer = None) -> tf.keras.Model:
   """Builds Mobile SpineNet backbone from a config."""
-  backbone_type = model_config.backbone.type
-  backbone_cfg = model_config.backbone.get()
-  norm_activation_config = model_config.norm_activation
+  backbone_type = backbone_config.type
+  backbone_cfg = backbone_config.get()
   assert backbone_type == 'spinenet_mobile', (f'Inconsistent backbone type '
                                               f'{backbone_type}')
 
@@ -507,8 +519,8 @@ def build_spinenet_mobile(
 
   return SpineNetMobile(
       input_specs=input_specs,
-      min_level=model_config.min_level,
-      max_level=model_config.max_level,
+      min_level=backbone_cfg.min_level,
+      max_level=backbone_cfg.max_level,
       endpoints_num_filters=scaling_params['endpoints_num_filters'],
       block_repeats=scaling_params['block_repeats'],
       filter_size_scale=scaling_params['filter_size_scale'],

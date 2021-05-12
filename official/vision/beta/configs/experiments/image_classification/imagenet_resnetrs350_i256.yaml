@@ -1,4 +1,4 @@
-# ResNet-RS-350 ImageNet classification. 83.7% top-5 accuracy.
+# ResNet-RS-350 ImageNet classification. 83.7% top-1 accuracy.
 runtime:
   distribution_strategy: 'tpu'
   mixed_precision_dtype: 'bfloat16'
@@ -29,8 +29,10 @@ task:
     is_training: true
     global_batch_size: 4096
     dtype: 'bfloat16'
-    aug_policy: 'randaug'
-    randaug_magnitude: 15
+    aug_type:
+      type: 'randaug'
+      randaug:
+        magnitude: 15
   validation_data:
     input_path: 'imagenet-2012-tfrecord/valid*'
     is_training: false
