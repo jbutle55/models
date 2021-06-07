@@ -241,8 +241,8 @@ def create_tf_example(image,
             pil_image.save(output_io, format='PNG')
             encoded_mask_png.append(output_io.getvalue())
 
-            xy_points = object_annotations['segmentation']
-            print(xy_points)
+            print(object_annotations['segmentation'])
+            xy_points = object_annotations['segmentation'][0]
             # xy_points alternates x then y then x then y...
             for i in range(0, len(xy_points), 2):
                 seg_x.append(xy_points[i])
