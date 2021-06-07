@@ -190,6 +190,8 @@ def create_tf_example(image,
     keypoints_name = []
     num_keypoints = []
     include_keypoint = keypoint_annotations_dict is not None
+    seg_x = []
+    seg_y = []
     num_annotations_skipped = 0
     num_keypoint_annotation_used = 0
     num_keypoint_annotation_skipped = 0
@@ -238,6 +240,12 @@ def create_tf_example(image,
             output_io = io.BytesIO()
             pil_image.save(output_io, format='PNG')
             encoded_mask_png.append(output_io.getvalue())
+
+            xy_points = object_annotations['segmentation']
+            # xy_points alternates x then y then x then y...
+            for i in range(len(xy_points), step=2):
+                seg_x.append(xy_points[i])
+                seg_y.append(xy_points[i+1])
 
         if include_keypoint:
             annotation_id = object_annotations['id']
@@ -329,6 +337,10 @@ def create_tf_example(image,
     if include_masks:
         feature_dict['image/object/mask'] = (
             dataset_util.bytes_list_feature(encoded_mask_png))
+        feature_dict['image/object/mask/x'] = (
+            dataset_util.float_list_feature(seg_x))
+        feature_dict['image/object/mask/y'] = (
+            dataset_util.float_list_feature(seg_y))
     if include_keypoint:
         feature_dict['image/object/keypoint/x'] = (
             dataset_util.float_list_feature(keypoints_x))
